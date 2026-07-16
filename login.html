@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Gerador IPTables</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="center-layout">
+    <div class="card login-card">
+        <h2>Acesso ao Sistema</h2>
+        <p>Faça login para gerenciar suas redes.</p>
+        
+        <form id="form-login" class="form-group">
+            <input type="text" id="username" placeholder="Usuário" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+        <p id="login-msg" class="msg-erro"></p>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

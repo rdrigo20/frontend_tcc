@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Configuração</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="app-layout">
+    <header class="top-nav">
+        <h1>Nova Configuração</h1>
+        <!-- Link para voltar ao painel -->
+        <a href="dashboard.html" class="btn-text">← Voltar ao Painel</a>
+    </header>
+
+    <main class="container">
+        <div class="card form-card">
+            <form id="config-form">
+                <h3>Interfaces</h3>
+                <div class="input-row">
+                    <input type="text" id="wan" placeholder="Interface WAN (ex: eth0)" required>
+                    <input type="text" id="lan" placeholder="Interface LAN (ex: eth1)" required>
+                </div>
+
+                <h3>Rede Local</h3>
+                <input type="text" id="lan_network" placeholder="Rede LAN (ex: 192.168.1.0/24)" required>
+
+                <h3>Políticas e Regras</h3>
+                <select id="policy">
+                    <option value="DROP">Política Padrão: DROP (Recomendado)</option>
+                    <option value="ACCEPT">Política Padrão: ACCEPT</option>
+                </select>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="nat" checked> Habilitar NAT (Compartilhar Internet)
+                </label>
+
+                <button type="submit" class="btn-primary mt-20">Gerar Script IPTables</button>
+            </form>
+
+            <div id="resultado" class="resultado-box" style="display: none;">
+                <h4>Script Gerado:</h4>
+                <pre id="codigo-gerado"></pre>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/form.js"></script>
+</body>
+</html>

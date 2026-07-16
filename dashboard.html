@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Histórico</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="app-layout">
+    <header class="top-nav">
+        <h1>Painel IPTables</h1>
+        <div class="nav-links">
+            <span>Olá, Admin!</span>
+            <button id="btn-logout" class="btn-text">Sair</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="header-actions">
+            <h2>Seu Histórico de Configurações</h2>
+            <!-- Link direto pelo HTML para a tela do formulário -->
+            <a href="formulario.html" class="btn-primary">+ Nova Configuração</a>
+        </div>
+
+        <div class="history-list" id="history-list">
+            <!-- O JavaScript vai injetar o histórico aqui -->
+            <p>Carregando histórico...</p>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
