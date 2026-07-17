@@ -2,28 +2,31 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Histórico</title>
-    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="app-layout">
-    <header class="top-nav">
-        <h1>Painel IPTables</h1>
-        <div class="nav-links">
-            <span>Olá, Admin!</span>
-            <button id="btn-logout" class="btn-text">Sair</button>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    
+    <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold">Painel IPTables</h1>
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-300">Olá, Admin!</span>
+            <button id="btn-logout" class="text-gray-400 hover:text-white text-sm font-medium transition-colors">Sair</button>
         </div>
     </header>
 
-    <main class="container">
-        <div class="header-actions">
-            <h2>Seu Histórico de Configurações</h2>
-            <!-- Link direto pelo HTML para a tela do formulário -->
-            <a href="formulario.html" class="btn-primary">+ Nova Configuração</a>
+    <main class="w-full max-w-4xl mx-auto p-6 flex-1">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h2 class="text-2xl font-semibold text-gray-700">Seu Histórico de Configurações</h2>
+            <a href="formulario.html" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors shadow">
+                + Nova Configuração
+            </a>
         </div>
 
-        <div class="history-list" id="history-list">
+        <div id="history-list" class="flex flex-col gap-3">
             <!-- O JavaScript vai injetar o histórico aqui -->
-            <p>Carregando histórico...</p>
+            <p class="text-gray-500 italic">Carregando histórico...</p>
         </div>
     </main>
 

@@ -2,44 +2,54 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Configuração</title>
-    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="app-layout">
-    <header class="top-nav">
-        <h1>Nova Configuração</h1>
-        <!-- Link para voltar ao painel -->
-        <a href="dashboard.html" class="btn-text">← Voltar ao Painel</a>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    
+    <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold">Nova Configuração</h1>
+        <a href="dashboard.html" class="text-gray-400 hover:text-white text-sm font-medium transition-colors">
+            &larr; Voltar ao Painel
+        </a>
     </header>
 
-    <main class="container">
-        <div class="card form-card">
-            <form id="config-form">
-                <h3>Interfaces</h3>
-                <div class="input-row">
-                    <input type="text" id="wan" placeholder="Interface WAN (ex: eth0)" required>
-                    <input type="text" id="lan" placeholder="Interface LAN (ex: eth1)" required>
+    <main class="w-full max-w-3xl mx-auto p-6 flex-1">
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+            <form id="config-form" class="flex flex-col gap-4">
+                
+                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700 mt-2">Interfaces</h3>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" id="wan" placeholder="Interface WAN (ex: eth0)" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="lan" placeholder="Interface LAN (ex: eth1)" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
 
-                <h3>Rede Local</h3>
-                <input type="text" id="lan_network" placeholder="Rede LAN (ex: 192.168.1.0/24)" required>
+                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700 mt-4">Rede Local</h3>
+                <input type="text" id="lan_network" placeholder="Rede LAN (ex: 192.168.1.0/24)" required 
+                       class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none">
 
-                <h3>Políticas e Regras</h3>
-                <select id="policy">
+                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700 mt-4">Políticas e Regras</h3>
+                <select id="policy" class="w-full px-4 py-2 border border-gray-300 rounded bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="DROP">Política Padrão: DROP (Recomendado)</option>
                     <option value="ACCEPT">Política Padrão: ACCEPT</option>
                 </select>
 
-                <label class="checkbox-label">
-                    <input type="checkbox" id="nat" checked> Habilitar NAT (Compartilhar Internet)
+                <label class="flex items-center gap-3 mt-2 text-gray-700 cursor-pointer">
+                    <input type="checkbox" id="nat" checked class="w-5 h-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span>Habilitar NAT (Compartilhar Internet)</span>
                 </label>
 
-                <button type="submit" class="btn-primary mt-20">Gerar Script IPTables</button>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition-colors shadow mt-6">
+                    Gerar Script IPTables
+                </button>
             </form>
 
-            <div id="resultado" class="resultado-box" style="display: none;">
-                <h4>Script Gerado:</h4>
-                <pre id="codigo-gerado"></pre>
+            <div id="resultado" class="mt-8 p-5 bg-gray-900 text-gray-300 rounded-md shadow-inner overflow-x-auto" style="display: none;">
+                <h4 class="text-white font-semibold mb-2">Script Gerado:</h4>
+                <pre id="codigo-gerado" class="font-mono text-sm leading-relaxed text-green-400"></pre>
             </div>
         </div>
     </main>
