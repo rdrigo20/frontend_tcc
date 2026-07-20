@@ -1,30 +1,49 @@
-
-
 document.addEventListener('DOMContentLoaded', async () => {
+    
+    // 1. Verifica quem está logado
     const userId = localStorage.getItem('user_id');
     const userNome = localStorage.getItem('user_nome');
 
-    // Se não tem ID, manda pro login
     if (!userId) {
         window.location.href = 'login.html';
         return;
     }
 
-    // Saudações
-    document.querySelector('header span').textContent = `Olá, ${userNome}!`;
+    // 2. Dá boas-vindas
+    const saudacao = document.querySelector('header span');
+    if (saudacao) {
+        saudacao.textContent = `Olá, ${userNome}!`;
+    }
 
     const historyList = document.getElementById('history-list');
     
+    // ATENÇÃO AQUI: URL exata do seu WordPress com o ID do usuário no final
+    const API_URL = `http://localhost/arquivos_wordpress/wp-json/api/conversa/usuario/${userId}`;
+
     try {
-        // BUSCANDO DO BANCO DE DADOS DE VERDADE!
-        // Coloque a URL do seu MAMP e anexe o ID do usuário no final da rota
-        const response = await fetch(`http://localhost/seu-wp/wp-json/api/conversa/usuario/${userId}`);
+        console.log("1. Tentando buscar o histórico na URL:", API_URL);
+        
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log("2. Status da resposta HTTP:", response.status);
+
+        if (!response.ok) {
+            throw new Error(`O servidor retornou um erro ${response.status}`);
+        }
+
         const historico = await response.json();
+        console.log("3. Dados que o PHP devolveu:", historico);
 
-        historyList.innerHTML = ''; // Limpa o "Carregando..."
+        historyList.innerHTML = ''; // Limpa a mensagem de "Carregando..."
 
-        if (historico.length === 0) {
-            historyList.innerHTML = '<p class="text-gray-500">Você ainda não tem nenhuma configuração salva.</p>';
+        // Verifica se o PHP devolveu um erro formatado ou se o array está vazio
+        if (historico.code || !Array.isArray(historico) || historico.length === 0) {
+            historyList.innerHTML = '<p class="text-gray-500 italic">Você ainda não tem nenhuma configuração salva.</p>';
             return;
         }
 
@@ -44,16 +63,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
     } catch (error) {
-        historyList.innerHTML = '<p class="text-red-500">Erro ao carregar o histórico.</p>';
+        console.error("ERRO FATAL NO DASHBOARD:", error);
+        historyList.innerHTML = `<p class="text-red-500 font-medium">Falha ao carregar histórico: ${error.message}</p>`;
     }
 
-    // 4. LOGOUT: Como sair do sistema?
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        // Apagamos o bloco de notas!
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('user_nome');
-        
-        // E mandamos de volta para o login
-        window.location.href = 'login.html';
-    });
+    // 3. Botão de Sair
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_nome');
+            window.location.href = 'login.html';
+        });
+    }
 });
