@@ -39,7 +39,7 @@ document.getElementById('form-cadastro').addEventListener('submit', async functi
 
     try {
         // Substitua pelo endereço real do seu WordPress
-        const response = await fetch('http://localhost/seu-wp/wp-json/api/usuario', {
+        const response = await fetch('http://localhost/arquivos_wordpress/wp-json/api/usuario', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
