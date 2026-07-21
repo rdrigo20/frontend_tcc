@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userId = localStorage.getItem('user_id');
     const userNome = localStorage.getItem('user_nome');
 
+    // se ngm logado volta para a tela de login ??
     if (!userId) {
         window.location.href = 'login.html';
         return;
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span>Criado em: ${item.data}</span>
                 </div>
             `;
-            historyList.appendChild(div);
+            historyList.appendChild(div); // adiciona a div (q contem uma das entradas do histórico) dentro da div history-list
         });
 
     } catch (error) {

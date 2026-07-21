@@ -11,7 +11,9 @@
     <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">Painel IPTables</h1>
         <div class="flex items-center gap-4">
-            <span class="text-sm text-gray-300">Olá, Admin!</span>
+            <!-- O js pega esse span e atualiza com o nome do usuário -->
+            <span class="text-sm text-gray-300">Aqui entra o nome do usuário pelo js</span>
+                        <!-- tem uma  -->
             <button id="btn-logout" class="text-gray-400 hover:text-white text-sm font-medium transition-colors">Sair</button>
         </div>
     </header>
@@ -23,7 +25,7 @@
                 + Nova conversa
             </a>
         </div>
-
+        <!-- esse id é o q vai fazer o JS indentificar qual é a div certa -->
         <div id="history-list" class="flex flex-col gap-3">
             <!-- O JavaScript vai injetar o histórico aqui -->
             <p class="text-gray-500 italic">Carregando histórico...</p>
