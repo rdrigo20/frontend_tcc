@@ -1,159 +1,119 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    // 1. Verificação de Segurança (Mantém o usuário logado)
     const userId = localStorage.getItem('user_id');
     if (!userId) {
         window.location.href = 'login.html';
         return;
     }
 
+    // Elementos da interface
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const btnEnviar = document.getElementById('btn-enviar');
 
-    let perguntas = []; 
-    let indiceAtual = 0; 
     let idConversaReal = null; 
-
     const BASE_URL = 'http://localhost/arquivos_wordpress/wp-json/api';
 
-    // 1. INICIAR CONVERSA
+    // 2. Cria a sessão da conversa no banco (Crucial para o Histórico no Dashboard)
     async function iniciarNovaConversa() {
         try {
             const dataHoje = new Date().toLocaleDateString('pt-BR');
-            const payloadConversa = {
+            const payload = {
                 user_id: userId,
-                titulo: `Configuração de Rede - ${dataHoje}`,
-                conteudo: "Conversa gerada pelo assistente automático."
+                titulo: `Assistente de Rede (IA) - ${dataHoje}`,
+                conteudo: "Início da configuração via Ollama."
             };
 
             const response = await fetch(`${BASE_URL}/conversa`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payloadConversa)
+                body: JSON.stringify(payload)
             });
 
-            if (!response.ok) throw new Error('Falha ao criar conversa');
-
+            if (!response.ok) throw new Error('Erro ao criar conversa no banco.');
             const data = await response.json();
+            
             idConversaReal = data.conversa_id; 
 
-            carregarPerguntas();
+            // Limpa o "Conectando..." e dá as boas-vindas
+            chatMessages.innerHTML = '';
+            adicionarMensagemNaTela('Olá! Sou seu assistente de redes inteligente. O que você gostaria de configurar no IPTables hoje? (Ex: Bloquear um IP, liberar uma porta...)', 'bot');
+            liberarInput();
 
         } catch (error) {
-            console.error("Erro ao iniciar conversa:", error);
+            console.error(error);
             adicionarMensagemNaTela('Erro ao iniciar a sessão com o servidor.', 'bot');
         }
     }
 
-    // 2. BUSCAR PERGUNTAS E CORRIGIR A ORDENAÇÃO/FILTRO
-    async function carregarPerguntas() {
-        try {
-            const response = await fetch(`${BASE_URL}/pergunta`);
-            const data = await response.json();
-
-            // Corrige o bug do filtro: converte para string minúscula para pegar "1" ou "true" com segurança
-            let perguntasFiltradas = data.filter(p => {
-                const mostrar = String(p.meta.mostrar).toLowerCase();
-                return mostrar === '1' || mostrar === 'true';
-            });
-
-            // Corrige o bug de ordem: previne NaN usando o fallback (|| 0)
-            perguntas = perguntasFiltradas.sort((a, b) => {
-                const ordemA = parseInt(a.meta.ordem) || 0;
-                const ordemB = parseInt(b.meta.ordem) || 0;
-                return ordemA - ordemB;
-            });
-
-            chatMessages.innerHTML = ''; 
-            
-            if (perguntas.length > 0) {
-                liberarInput();
-                fazerPerguntaAtual();
-            } else {
-                adicionarMensagemNaTela('Nenhuma pergunta configurada no sistema.', 'bot');
-            }
-
-        } catch (error) {
-            adicionarMensagemNaTela('Erro ao conectar com o banco de dados de perguntas.', 'bot');
-        }
-    }
-
-    // 3. EXIBIR A PERGUNTA
-    function fazerPerguntaAtual() {
-        const pergunta = perguntas[indiceAtual];
-        const textoPergunta = pergunta.content ? pergunta.content : pergunta.title;
-        adicionarMensagemNaTela(textoPergunta, 'bot');
-    }
-
-    // 4. EVENTOS DE ENVIO
-    btnEnviar.addEventListener('click', enviarResposta);
+    // 3. EVENTOS DE CLIQUE E ENTER
+    btnEnviar.addEventListener('click', enviarMensagem);
     userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') enviarResposta();
+        if (e.key === 'Enter') enviarMensagem();
     });
 
-    // 5. ENVIAR A RESPOSTA (SEM ATRASOS)
-    async function enviarResposta() {
-        const textoResposta = userInput.value.trim();
-        if (!textoResposta) return;
+    // 4. A FUNÇÃO PRINCIPAL QUE FALA COM A SUA API (E A IA)
+    async function enviarMensagem() {
+        const texto = userInput.value.trim();
+        if (!texto) return;
 
-        adicionarMensagemNaTela(textoResposta, 'user');
+        // Bota a mensagem do usuário na tela e bloqueia digitação
+        adicionarMensagemNaTela(texto, 'user');
         userInput.value = '';
-        bloquearInput();
-
-        const perguntaAtual = perguntas[indiceAtual];
-
-        const payload = {
-            user_id: userId,
-            pergunta_id: perguntaAtual.id,
-            conteudo: textoResposta,
-            id_conversa: idConversaReal 
-        };
+        bloquearInput(); 
+        
+        // Coloca um balão temporário indicando que a IA está pensando...
+        const idBalaoPensando = adicionarMensagemNaTela('Analisando...', 'bot', true);
 
         try {
-            const response = await fetch(`${BASE_URL}/resposta`, {
+            // Faz a chamada para o seu backend WordPress
+            const response = await fetch(`${BASE_URL}/chat-ia`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ 
+                    mensagem: texto,
+                    user_id: userId,
+                    id_conversa: idConversaReal // Mandamos isso para o WP salvar no histórico dps!
+                })
             });
 
-            if (!response.ok) throw new Error('Erro ao salvar no banco');
+            const data = await response.json();
 
-            indiceAtual++;
+            // Remove o balão de "Analisando..."
+            removerMensagem(idBalaoPensando);
 
-            // Execução instantânea: O setTimeout de 800ms foi removido
-            if (indiceAtual < perguntas.length) {
-                fazerPerguntaAtual();
-                liberarInput();
-            } else {
-                finalizarChat();
-            }
+            if (!response.ok) throw new Error('Erro na API');
+
+            // Acessa a fala amigável que a IA gerou e desenha na tela
+            const respostaDaIA = data.dados.resposta_amigavel;
+            adicionarMensagemNaTela(respostaDaIA, 'bot');
+            
+            // Console log para você ver o JSON puro sendo extraído nos bastidores
+            console.log("JSON extraído pelo Ollama:", data.dados);
 
         } catch (error) {
-            adicionarMensagemNaTela('Erro ao salvar resposta. Tente reenviar.', 'bot');
-            liberarInput(); 
+            console.error(error);
+            removerMensagem(idBalaoPensando);
+            adicionarMensagemNaTela('Desculpe, a IA está indisponível ou demorou muito para responder.', 'bot');
+        } finally {
+            liberarInput();
         }
-    }
-
-    // 6. FINALIZAR SESSÃO
-    function finalizarChat() {
-        adicionarMensagemNaTela('Configuração finalizada! Todas as suas respostas foram atreladas a esta sessão.', 'bot');
-        bloquearInput();
-        
-        // Mantém apenas o tempo para ler a última mensagem antes de voltar ao painel
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 3000);
     }
 
     // --- FUNÇÕES VISUAIS ---
 
-    function adicionarMensagemNaTela(texto, remetente) {
+    function adicionarMensagemNaTela(texto, remetente, isTemp = false) {
         const divBox = document.createElement('div');
+        const uniqueId = 'msg-' + Date.now();
+        divBox.id = uniqueId;
         divBox.className = 'flex w-full ' + (remetente === 'user' ? 'justify-end' : 'justify-start');
 
         const divMsg = document.createElement('div');
         divMsg.className = 'px-4 py-2 max-w-[80%] text-sm ';
         
+        if (isTemp) divMsg.className += 'italic opacity-70 '; // Estilo para o "pensando..."
+
         if (remetente === 'user') {
             divMsg.className += 'bg-blue-500 text-white rounded-bl-lg rounded-tl-lg rounded-tr-lg';
             divMsg.textContent = texto; 
@@ -165,6 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
         divBox.appendChild(divMsg);
         chatMessages.appendChild(divBox);
         chatMessages.scrollTop = chatMessages.scrollHeight; 
+        
+        return uniqueId;
+    }
+
+    function removerMensagem(id) {
+        const elemento = document.getElementById(id);
+        if (elemento) elemento.remove();
     }
 
     function bloquearInput() {
@@ -178,5 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.focus();
     }
 
+    // Dá o pontapé inicial
     iniciarNovaConversa();
 });
