@@ -247,7 +247,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // INICIA O SISTEMA ASSIM QUE O ARQUIVO CARREGA
+    // ROTEAMENTO: NOVA CONVERSA VS CARREGAR EXISTENTE
     // ==========================================
-    iniciarNovaConversa();
+    
+    // Lê os parâmetros da URL (ex: chat.html?id=45)
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatIdDaURL = urlParams.get('id');
+
+    // Função para carregar a memória do banco de dados
+    async function carregarConversaExistente(id) {
+        try {
+            // Chama o endpoint GET que acabamos de consertar
+            const response = await fetch(`${BASE_URL}/conversa/${id}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) throw new Error('Falha ao carregar a conversa salva.');
+
+            const data = await response.json();
+
+            // Restaura o ID para que as novas mensagens sobrescrevam o mesmo JSON
+            idConversaReal = data.id;
+
+            // Limpa o "Conectando..." da tela
+            chatMessages.innerHTML = '';
+            
+            // Dá boas vindas contextuais
+            adicionarMensagemNaTela(`Bem-vindo de volta, ${userNome}! Carreguei a configuração "${data.title}". O que mais deseja alterar?`, 'bot');
+
+            // Renderiza na tela preta o JSON exato que estava salvo no banco!
+            if (data.meta && data.meta.config_atual) {
+                atualizarPainelJSON(data.meta.config_atual);
+            }
+
+            liberarInput();
+
+        } catch (error) {
+            console.error("Erro ao carregar conversa:", error);
+            adicionarMensagemNaTela('Erro ao resgatar a configuração salva. Iniciando uma nova sessão...', 'bot');
+            // Se der erro, cai pro modo de criar nova por segurança
+            iniciarNovaConversa();
+        }
+    }
+
+    // A MÁGICA COMEÇA AQUI: Decide o que fazer ao abrir a página
+    if (chatIdDaURL) {
+        // Usuário clicou no Dashboard e trouxe um ID
+        carregarConversaExistente(chatIdDaURL);
+    } else {
+        // Usuário acessou o chat direto, cria do zero
+        iniciarNovaConversa();
+    }
 });
