@@ -54,8 +54,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="flex items-center gap-2 text-sm text-gray-500 whitespace-nowrap">
                     <span class="hidden md:inline">Criado em: ${item.data}</span>
+
+                    <!--  Botão de Continuar/Abrir Chat (Seta Verde) -->
+                    <a href="chat.html?id=${item.id}" class="text-green-500 hover:text-green-700 bg-green-50 hover:bg-green-100 p-2 rounded-full transition-colors" title="Continuar configurando">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                     
-                    <!-- NOVO: Botão de Editar (Lápis Azul) -->
+                    <!-- Botão de Editar (Lápis Azul) -->
                     <button class="btn-editar text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-full transition-colors" title="Renomear conversa">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
